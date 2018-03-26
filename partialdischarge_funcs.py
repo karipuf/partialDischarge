@@ -4,12 +4,11 @@ from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
-from sklearn.lda import LDA
-import sklearn.qda
 from sklearn import cross_validation
 from sklearn.metrics import roc_auc_score
 from keras.models import Sequential as sq
-from keras.layers import Convolution1D,MaxPooling1D,Flatten,Dense,Dropout,AveragePooling1D,LSTM
+from keras.layers import Convolution1D,MaxPooling1D,Flatten,Dense,Dropout,AveragePooling1D,LSTM,GlobalAveragePooling1D,InputLayer
+from os.path import join as PathJoin
 import pandas as pd
 import numpy as np
 import sklearn,re,os,pdb,sys,pylab,keras
@@ -24,25 +23,33 @@ def Folder2Matrix(path='.'):
     timeseries=np.concatenate([np.array(loadmat(tmp)['X']) for tmp in matFiles],axis=1)
     return np.array([timeseries]).T
 
-def CreateCNN(classifier,nfilt1=50,lenfilt1=30,nfilt2=50,lenfilt2=20,nhidden=50,dropkeep=.35,lr=0.008):
+def CreateCNN(nFilts=(50,100,200),lenFilts=(10,10,10),poolSizes=(5,5,5),poolLayer=MaxPooling1D,nHidden=0,dropProb=.2,lr=0.008,inputLen=2500):
+
     ''' 
     Return conv. NN
     '''
 
+    assert len(nFilts)==len(lenFilts)
+    assert len(poolSizes)==len(lenFilts)
+    
     cnn=sq()
-    cnn.add(Convolution1D(nfilt1,lenfilt1,input_shape=(2500,1),strides=1,activation='relu'))
-    cnn.add(MaxPooling1D(100,50))
-    cnn.add(Dropout(dropkeep))
-    cnn.add(Convolution1D(nfilt2,lenfilt2,strides=1,activation="relu"))
-    cnn.add(MaxPooling1D(10,5))
-    cnn.add(Dropout(dropkeep))
+    cnn.add(InputLayer((inputLen,1)))
+    
+    for nFilt,lenFilt,poolSize in zip(nFilts,lenFilts,poolSizes):
+        cnn.add(Convolution1D(nFilt,lenFilt,activation='relu'))
+        cnn.add(poolLayer(poolSize))
+        cnn.add(Dropout(dropProb))
 
-    cnn.add(Flatten())
-    cnn.add(Dense(nhidden,activation='relu'))
-    cnn.add(Dropout(dropkeep))
+    if nHidden>0:
+        cnn.add(Flatten())
+        cnn.add(Dense(nhidden,activation='relu'))
+        cnn.add(Dropout(dropProb))
+    else:
+        cnn.add(GlobalAveragePooling1D())
+        
     cnn.add(Dense(2,activation="softmax"))
     adam=keras.optimizers.Adam(lr=lr)
-    cnn.compile(loss='categorical_crossentropy',optimizer=adam)
+    cnn.compile(loss='categorical_crossentropy',optimizer=adam,metrics=['accuracy'])
     
     return cnn
 
@@ -71,12 +78,81 @@ def TensorSplit(x,y,test_size=0.25,random_state=0):
 def CNNScore(model,testx,testy):
     return (testy[model.predict(testx)>0.5].sum()/float(len(testy)))
 
-def CreateLocationData():
+def CreateTemperatureData(locationPath='TemperatureData'):
+
+    # Cold, 2 classes
+    surf=Folder2Matrix(PathJoin(locationPath,'surface/'))
+    void=Folder2Matrix(PathJoin(locationPath,'void/'))
+    nsurf,nvoid=len(surf),len(void)
+    Xcold=np.concatenate((surf,void),axis=0)
+    Ycold=np.concatenate((np.tile([1,0],(nsurf,1)),np.tile([0,1],(nvoid,1))),axis=0)
+
+    # Hot, 2 classes
+    surf=Folder2Matrix(PathJoin(locationPath,'surface/Heated'))
+    void=Folder2Matrix(PathJoin(locationPath,'void/Heated 10mv standard/'))
+    nsurf,nvoid=len(surf),len(void)
+    Xhot=np.concatenate((surf,void),axis=0)
+    Yhot=np.concatenate((np.tile([1,0],(nsurf,1)),np.tile([0,1],(nvoid,1))),axis=0)
+
+    return dict(Xcold=Xcold,Xhot=Xhot,Ycold=Ycold,Yhot=Yhot)
+    
+def CreateLocationData(locationPath='LocationData'):
+
+    # Location 4, three classes
+    surf4=Folder2Matrix(PathJoin(locationPath,'Surface/PD_Location4'))
+    sharp4=Folder2Matrix(PathJoin(locationPath,'Sharp/PD_Location4'))
+    void4=Folder2Matrix(PathJoin(locationPath,'Void/PD_Location4'))
+    nsurf4,nsharp4,nvoid4=len(surf4),len(sharp4),len(void4)
+    X4=np.concatenate((surf4,sharp4,void4))
+    Y4=np.concatenate((np.tile([1,0,0],(nsurf4,1)),np.tile([0,1,0],(nsharp4,1)),np.tile([0,0,1],(nvoid4,1))),axis=0)
+
+    # Location 9, three classes
+    surf9=Folder2Matrix(PathJoin(locationPath,'Surface/PD_Location9'))
+    sharp9=Folder2Matrix(PathJoin(locationPath,'Sharp/PD_Location9'))
+    void9=Folder2Matrix(PathJoin(locationPath,'Void/PD_Location9'))
+    nsurf9,nsharp9,nvoid9=len(surf9),len(sharp9),len(void9)
+    X9=np.concatenate((surf9,sharp9,void9))
+    Y9=np.concatenate((np.tile([1,0,0],(nsurf9,1)),np.tile([0,1,0],(nsharp9,1)),np.tile([0,0,1],(nvoid9,1))),axis=0)
+
+    return dict(X4=X4,X9=X9,Y4=Y4,Y9=Y9)
+
+
+
+
+
+
+#########################
+# Deprecated versions
+#########################
+
+def CreateCNN_deprecated(classifier,nfilt1=50,lenfilt1=30,nfilt2=50,lenfilt2=20,nhidden=50,dropkeep=.35,lr=0.008):
+    ''' 
+    Return conv. NN
+    '''
+
+    cnn=sq()
+    cnn.add(Convolution1D(nfilt1,lenfilt1,input_shape=(2500,1),strides=1,activation='relu'))
+    cnn.add(MaxPooling1D(100,50))
+    cnn.add(Dropout(dropkeep))
+    cnn.add(Convolution1D(nfilt2,lenfilt2,strides=1,activation="relu"))
+    cnn.add(MaxPooling1D(10,5))
+    cnn.add(Dropout(dropkeep))
+
+    cnn.add(Flatten())
+    cnn.add(Dense(nhidden,activation='relu'))
+    cnn.add(Dropout(dropkeep))
+    cnn.add(Dense(2,activation="softmax"))
+    adam=keras.optimizers.Adam(lr=lr)
+    cnn.compile(loss='categorical_crossentropy',optimizer=adam)
+    
+    return cnn
+
+def CreateLocationData_deprecated(locationPath='LocationData'):
 
     # Creating the data
-    surf4=Folder2Matrix('Surface/PD_Location4')
-    sharp4=Folder2Matrix('Sharp/PD_Location4')
-    void4=Folder2Matrix('Void/PD_Location4')
+    surf4=Folder2Matrix(PathJoin(locationPath,'Surface/PD_Location4'))
+    sharp4=Folder2Matrix(PathJoin(locationPath,'Sharp/PD_Location4'))
+    void4=Folder2Matrix(PathJoin(locationPath,'Void/PD_Location4'))
     nsurf4=len(surf4)
     nsharp4=len(sharp4)
     nvoid4=len(void4)
@@ -85,9 +161,9 @@ def CreateLocationData():
     Ysharp4=np.concatenate((np.tile([0,1],(nsurf4,1)),np.tile([1,0],(nsharp4,1)),np.tile([0,1],(nvoid4,1))))
     Yvoid4=np.concatenate((np.tile([0,1],(nsurf4+nsharp4,1)),np.tile([1,0],(nvoid4,1))))
     
-    surf9=Folder2Matrix('Surface/PD_Location9')
-    sharp9=Folder2Matrix('Sharp/PD_Location9')
-    void9=Folder2Matrix('Void/PD_Location9')
+    surf9=Folder2Matrix(PathJoin(locationPath,'Surface/PD_Location9'))
+    sharp9=Folder2Matrix(PathJoin(locationPath,'Sharp/PD_Location9'))
+    void9=Folder2Matrix(PathJoin(locationPath,'Void/PD_Location9'))
     nsurf9=len(surf9)
     nsharp9=len(sharp9)
     nvoid9=len(void9)
