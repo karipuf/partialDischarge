@@ -10,7 +10,7 @@ import re,os,pdb,keras
 import sklearn
 from matplotlib import pyplot as pl
 
-print('hi')
+print('haaa')
 
 def Folder2Matrix(path='.'):
     '''
@@ -22,7 +22,7 @@ def Folder2Matrix(path='.'):
     timeseries=np.concatenate([np.array(loadmat(tmp)['X']) for tmp in matFiles],axis=1)
     return np.array([timeseries]).T
 
-def CreateCNN(classifier,nFilters=50,lenFilters=30):
+def CreateCNN(classifier,nFilters=150,lenFilters=30):
     ''' 
     Return conv. NN
     '''
@@ -31,7 +31,7 @@ def CreateCNN(classifier,nFilters=50,lenFilters=30):
     cnn.add(Convolution1D(nFilters,lenFilters,input_shape=(2500,1),strides=1,activation='relu'))
     cnn.add(MaxPooling1D(50,25))
     cnn.add(Dropout(.5))
-    cnn.add(Convolution1D(50,20,strides=1,activation="relu"))
+    cnn.add(Convolution1D(150,20,strides=1,activation="relu"))
     cnn.add(MaxPooling1D(10,5))
     cnn.add(Dropout(.5))
 
@@ -39,7 +39,7 @@ def CreateCNN(classifier,nFilters=50,lenFilters=30):
     cnn.add(Dense(50,activation='relu'))
     cnn.add(Dropout(.35))
     cnn.add(Dense(2,activation="softmax"))
-    adam=keras.optimizers.Adam(lr=0.0008)
+    adam=keras.optimizers.Adam(lr=0.0008,decay=1e-6)
     cnn.compile(loss='categorical_crossentropy',optimizer=adam)
     
     return cnn
@@ -68,7 +68,7 @@ testSplit=0.3
 #testSplit=0.1
 classifiers=["'CNN1'"]
 modelFile='bestmodel.hdf5'
-batchSize=128
+batchSize=64
 
 for classifier in classifiers:
 
