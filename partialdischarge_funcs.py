@@ -36,9 +36,13 @@ def CreateCNN(nFilts=(50,100,200),lenFilts=(10,10,10),poolSizes=(5,5,5),poolLaye
     cnn.add(InputLayer((inputLen,1)))
     
     for nFilt,lenFilt,poolSize in zip(nFilts,lenFilts,poolSizes):
-        cnn.add(Convolution1D(nFilt,lenFilt,activation='relu'))
-        cnn.add(poolLayer(poolSize))
-        cnn.add(Dropout(dropProb))
+        try:
+            cnn.add(Convolution1D(nFilt,lenFilt,activation='relu'))
+            cnn.add(poolLayer(poolSize))
+            cnn.add(Dropout(dropProb))
+        except ValueError: # Probably too few dims left
+            print("Dropped a layer!")
+            pass
 
     if nHidden>0:
         cnn.add(Flatten())
