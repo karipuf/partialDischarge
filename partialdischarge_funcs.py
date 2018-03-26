@@ -96,7 +96,7 @@ def CreateTemperatureData(locationPath='TemperatureData',normalize=False):
 
     if normalize:
         Xcold=(Xcold-Xcold.mean())/Xcold.std()
-        Xhot=(xhot-Xhot.mean())/Xhot.std()
+        Xhot=(Xhot-Xhot.mean())/Xhot.std()
         
     return dict(Xcold=Xcold,Xhot=Xhot,Ycold=Ycold,Yhot=Yhot)
     
