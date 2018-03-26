@@ -78,7 +78,7 @@ def TensorSplit(x,y,test_size=0.25,random_state=0):
 def CNNScore(model,testx,testy):
     return (testy[model.predict(testx)>0.5].sum()/float(len(testy)))
 
-def CreateTemperatureData(locationPath='TemperatureData'):
+def CreateTemperatureData(locationPath='TemperatureData',normalize=False):
 
     # Cold, 2 classes
     surf=Folder2Matrix(PathJoin(locationPath,'surface/'))
@@ -94,9 +94,13 @@ def CreateTemperatureData(locationPath='TemperatureData'):
     Xhot=np.concatenate((surf,void),axis=0)
     Yhot=np.concatenate((np.tile([1,0],(nsurf,1)),np.tile([0,1],(nvoid,1))),axis=0)
 
+    if normalize:
+        Xcold=(Xcold-Xcold.mean())/Xcold.std()
+        Xhot=(xhot-Xhot.mean())/Xhot.std()
+        
     return dict(Xcold=Xcold,Xhot=Xhot,Ycold=Ycold,Yhot=Yhot)
     
-def CreateLocationData(locationPath='LocationData'):
+def CreateLocationData(locationPath='LocationData',normalize=False):
 
     # Location 4, three classes
     surf4=Folder2Matrix(PathJoin(locationPath,'Surface/PD_Location4'))
@@ -113,6 +117,10 @@ def CreateLocationData(locationPath='LocationData'):
     nsurf9,nsharp9,nvoid9=len(surf9),len(sharp9),len(void9)
     X9=np.concatenate((surf9,sharp9,void9))
     Y9=np.concatenate((np.tile([1,0,0],(nsurf9,1)),np.tile([0,1,0],(nsharp9,1)),np.tile([0,0,1],(nvoid9,1))),axis=0)
+
+    if normalize:
+        X4=(X4-X4.mean())/X4.std()
+        X9=(X9-X9.mean())/X9.std()
 
     return dict(X4=X4,X9=X9,Y4=Y4,Y9=Y9)
 

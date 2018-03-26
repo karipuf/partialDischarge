@@ -11,8 +11,7 @@ testSize=.1
 temp=CreateTemperatureData()
 
 # Cold, first
-Xcold=temp['Xcold']
-Ycold=temp['Ycold']
+Xcold,Xhot,Ycold,Yhot=[temp[tmp] for tmp in ['Xcold','Xhot','Ycold','Yhot']]
 xtrain,xtest,ytrain,ytest=train_test_split(Xcold,Ycold,test_size=testSize,random_state=randSeed)
 
 
