@@ -23,7 +23,7 @@ def Folder2Matrix(path='.'):
     timeseries=np.concatenate([np.array(loadmat(tmp)['X']) for tmp in matFiles],axis=1)
     return np.array([timeseries]).T
 
-def CreateCNN(nFilts=(50,100,200),lenFilts=(10,10,10),poolSizes=(5,5,5),poolLayer=MaxPooling1D,nHidden=0,dropProb=.2,lr=0.008,inputLen=2500):
+def CreateCNN(nFilts=(50,100,200),lenFilts=(10,10,10),poolSizes=(5,5,5),poolLayer=MaxPooling1D,nHidden=0,dropProb=.2,lr=0.008,inputLen=2500,nOutputs=2):
 
     ''' 
     Return conv. NN
@@ -42,12 +42,12 @@ def CreateCNN(nFilts=(50,100,200),lenFilts=(10,10,10),poolSizes=(5,5,5),poolLaye
 
     if nHidden>0:
         cnn.add(Flatten())
-        cnn.add(Dense(nhidden,activation='relu'))
+        cnn.add(Dense(nHidden,activation='relu'))
         cnn.add(Dropout(dropProb))
     else:
         cnn.add(GlobalAveragePooling1D())
         
-    cnn.add(Dense(2,activation="softmax"))
+    cnn.add(Dense(nOutputs,activation="softmax"))
     adam=keras.optimizers.Adam(lr=lr)
     cnn.compile(loss='categorical_crossentropy',optimizer=adam,metrics=['accuracy'])
     
