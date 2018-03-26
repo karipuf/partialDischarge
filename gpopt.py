@@ -2,10 +2,11 @@ from partialdischarge_funcs import *
 from sklearn.model_selection import train_test_split
 from skopt import gp_minimize
 from skopt.space import Real,Integer
+import pickle
 
 randSeed=10
 testSize=.1
-nCalls=30
+nCalls=50
 resFile='skopt_result.pkl'
 
 ###################
@@ -33,13 +34,13 @@ def sc(tmp):
     nFilts=(100,150,200,250,250,300)[:tmp[0]]
     lenFilts=[int(tmp[1])]*tmp[0]
     pools=[3]*tmp[0]
-    cnn=CreateCNN(nFilts=nFilts,lenFilts=lenFilts,poolSizes=pools)
+    #cnn=CreateCNN(nFilts=nFilts,lenFilts=lenFilts,poolSizes=pools)
     
-    #cnn=CreateCNN(nFilts,lenFilts,pools,lr=tmp[2],dropProb=tmp[3])
+    cnn=CreateCNN(nFilts,lenFilts,pools,lr=tmp[2],dropProb=tmp[3])
     
     
     cnn.fit(xtrain,ytrain,epochs=250,batch_size=128)
-    return cnn.evaluate(Xhot,Yhot)[1]
+    return cnn.evaluate(Xhot,Yhot)[0]
 
 res=gp_minimize(sc,space,n_calls=nCalls)
 # Wrapping up
