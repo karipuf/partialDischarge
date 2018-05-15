@@ -8,6 +8,7 @@ from sklearn import cross_validation
 from sklearn.metrics import roc_auc_score
 from keras.models import Sequential as sq
 from keras.layers import Convolution1D,MaxPooling1D,Flatten,Dense,Dropout,AveragePooling1D,LSTM,GlobalAveragePooling1D,InputLayer
+from keras import regularizers
 from os.path import join as PathJoin
 import pandas as pd
 import numpy as np
@@ -23,7 +24,7 @@ def Folder2Matrix(path='.'):
     timeseries=np.concatenate([np.array(loadmat(tmp)['X']) for tmp in matFiles],axis=1)
     return np.array([timeseries]).T
 
-def CreateCNN(nFilts=(50,100,200),lenFilts=(10,10,10),poolSizes=(5,5,5),poolLayer=MaxPooling1D,nHidden=0,dropProb=.2,lr=0.008,inputLen=2500,nOutputs=2):
+def CreateCNN(nFilts=(50,100,200),lenFilts=(10,10,10),poolSizes=(5,5,5),poolLayer=MaxPooling1D,nHidden=0,dropProb=.2,lr=0.008,inputLen=2500,nOutputs=2,reg=.0):
 
     ''' 
     Return conv. NN
@@ -37,7 +38,7 @@ def CreateCNN(nFilts=(50,100,200),lenFilts=(10,10,10),poolSizes=(5,5,5),poolLaye
     
     for nFilt,lenFilt,poolSize in zip(nFilts,lenFilts,poolSizes):
         try:
-            cnn.add(Convolution1D(nFilt,lenFilt,activation='relu'))
+            cnn.add(Conv1D(nFilt,lenFilt,activation='relu',kernel_regularizer=regularizers.l2(reg)))
             cnn.add(poolLayer(poolSize))
             cnn.add(Dropout(dropProb))
         except ValueError: # Probably too few dims left
