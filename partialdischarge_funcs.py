@@ -7,7 +7,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn import cross_validation
 from sklearn.metrics import roc_auc_score
 from keras.models import Sequential as sq
-from keras.layers import Convolution1D,MaxPooling1D,Flatten,Dense,Dropout,AveragePooling1D,LSTM,GlobalAveragePooling1D,InputLayer
+from keras.layers import Convolution1D,Conv1D,MaxPooling1D,Flatten,Dense,Dropout,AveragePooling1D,LSTM,GlobalAveragePooling1D,InputLayer
 from keras import regularizers
 from os.path import join as PathJoin
 import pandas as pd
