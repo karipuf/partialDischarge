@@ -58,7 +58,7 @@ for param in params:
 
 
 # redoing the cold->hot ;-(
-sys.exit()
+#sys.exit()
 
 ###############
 # Hot->Cold

@@ -55,7 +55,7 @@ for param in params:
     cnn=CreateCNN((100,150,150,150,200),(10,10,10,10,10),poolSizes=(3,3,3,3,3),lr=.0001,dropProb=.7,reg=.0,nOutputs=2,activation=keras.layers.advanced_activations.LeakyReLU)
     callbacks=[keras.callbacks.ModelCheckpoint('bestMod4_class'+str(targClass)+'.hdf',save_best_only=True,monitor='val_loss'),keras.callbacks.CSVLogger('trainres4.csv')]
 
-    cnn.fit(xtrain,ytrain,epochs=100,callbacks=callbacks, validation_split=.05) # validation_data=(xtest9,ytest9)
+    cnn.fit(xtrain,ytrain,epochs=100,batch_size=64,callbacks=callbacks, validation_split=.05) # validation_data=(xtest9,ytest9)
     cnnbest=keras.models.load_model('bestMod4_class'+str(targClass)+'.hdf')
   
     print("Results using class"+str(targClass)+" as target Class")
@@ -118,7 +118,7 @@ for param in params:
     cnn=CreateCNN((100,150,150,150,200),(10,10,10,10,10),poolSizes=(3,3,3,3,3),lr=.0001,dropProb=.7,reg=.0,nOutputs=2,activation=keras.layers.advanced_activations.LeakyReLU)
     callbacks=[keras.callbacks.ModelCheckpoint('bestMod9_class'+str(targClass)+'.hdf',save_best_only=True,monitor='val_loss'),keras.callbacks.CSVLogger('trainres9.csv')]
 
-    cnn.fit(xtrain9,ytrain9,epochs=100,callbacks=callbacks, validation_split=.05) # validation_data=(xtest9,ytest9)
+    cnn.fit(xtrain9,ytrain9,epochs=100,batch_size=64,callbacks=callbacks, validation_split=.05) # validation_data=(xtest9,ytest9)
     cnnbest=keras.models.load_model('bestMod9_class'+str(targClass)+'.hdf')
   
     print("Results using class"+str(targClass)+" as target Class")
