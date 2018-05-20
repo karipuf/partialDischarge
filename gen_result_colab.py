@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[42]:
-
-
 from partialdischarge_funcs import *
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
@@ -15,7 +9,7 @@ import pandas as pd
 import keras,random,sys
 
 randSeed=10
-testSize=.1
+testSize=.01
 
 ###################
 # Temperature
@@ -27,13 +21,9 @@ Xcold,Xhot,Ycold,Yhot=[temp[tmp] for tmp in ['Xcold','Xhot','Ycold','Yhot']]
 xtrain,xtest,ytrain,ytest=train_test_split(Xcold,Ycold,test_size=testSize,random_state=randSeed)
 xtrainhot,xtesthot,ytrainhot,ytesthot=train_test_split(Xhot,Yhot,test_size=testSize,random_state=randSeed)
 
-
-#Reference
-#cnn=CreateCNN((100,150,150,150,200),(10,10,10,10,10),poolSizes=(3,3,3,3,3),lr=.0001,dropProb=.7,reg=.0)
-
-
+################
 # Cold->Hot
-#############
+################
 
 nParams=80
 nfiltbases=np.random.choice(range(50,150),nParams)
@@ -58,7 +48,7 @@ for param in params:
     cnn.fit(xtrain,ytrain,epochs=100,batch_size=64,callbacks=callbacks,validation_split=.05,verbose=0)
     
     cnnbest=keras.models.load_model('bestMod.hdf')
-    tmpacc=np.sum(cnnbest.predict(Xcold).argmax(axis=1)==Ycold.argmax(axis=1))/len(Ycold)
+    tmpacc=np.sum(cnnbest.predict(Xhot).argmax(axis=1)==Yhot.argmax(axis=1))/len(Yhot)
     
     if tmpacc>bestsofar:
         bestsofar=tmpacc
@@ -67,8 +57,10 @@ for param in params:
         open("bestParams.txt","w+").write(str(param)+', acc:'+str(bestsofar))
 
 
+# redoing the cold->hot ;-(
+sys.exit()
 
-
+###############
 # Hot->Cold
 ###############
         
