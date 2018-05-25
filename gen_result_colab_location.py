@@ -16,10 +16,6 @@ nParams=80
 loc=CreateLocationData()
 X4,X9,Y4,Y9=[loc[tmp] for tmp in ['X4','X9','Y4','Y9']]
 
-xtrain,xtest,ytrain,ytest=train_test_split(X4,Y4,test_size=testSize,random_state=randSeed)
-xtrain9,xtest9,ytrain9,ytest9=train_test_split(X9,Y9,test_size=testSize,random_state=randSeed)
-
-
 ###########################
 # Location 4
 ###########################
@@ -42,14 +38,13 @@ for param in params:
    print("(4->9) Running paramset #"+str(next(counter)))
    sys.stdout.flush()
   
-   #cnn=CreateCNN((100,150,150,150,200),(10,10,10,10,10),poolSizes=(3,3,3,3,3),lr=.0001,dropProb=.7,reg=.0,nOutputs=3)
    nfiltbase,filtlen,lr,dropProb=param
    nfilts=[int(nfiltbase*tmp) for tmp in [1,1.5,1.5,1.5,2]]   
    cnn=CreateCNN(nfilts,[int(filtlen)]*len(nfilts),poolSizes=(3,3,3,3,3),lr=lr,dropProb=dropProb,reg=.0,nOutputs=3)  
    
    callbacks=[keras.callbacks.ModelCheckpoint('bestMod4.hdf',save_best_only=True,monitor='val_acc'),keras.callbacks.CSVLogger('trainres4.csv')]
   
-   cnn.fit(xtrain,ytrain,epochs=100,batch_size=64,callbacks=callbacks, validation_split=.05,verbose=0) # validation_data=(xtest9,ytest9)
+   cnn.fit(X4,Y4,epochs=100,batch_size=64,callbacks=callbacks, validation_split=.05,verbose=0)
 
    cnnbest=keras.models.load_model('bestMod4.hdf')
    tmpacc=np.sum(cnnbest.predict(X9).argmax(axis=1)==Y9.argmax(axis=1))/len(Y9)
@@ -84,7 +79,6 @@ for param in params:
    print("(9->4) Running paramset #"+str(next(counter)))
    sys.stdout.flush()
     
-   #cnn=CreateCNN((100,150,150,150,200),(10,10,10,10,10),poolSizes=(3,3,3,3,3),lr=.0001,dropProb=.7,reg=.0,nOutputs=3)
    nfiltbase,filtlen,lr,dropProb=param
    nfilts=[int(nfiltbase*tmp) for tmp in [1,1.5,1.5,1.5,2]]   
    cnn=CreateCNN(nfilts,[int(filtlen)]*len(nfilts),poolSizes=(3,3,3,3,3),lr=lr,dropProb=dropProb,reg=.0,nOutputs=3)  
@@ -92,7 +86,7 @@ for param in params:
    
    callbacks=[keras.callbacks.ModelCheckpoint('bestMod9.hdf',save_best_only=True,monitor='val_acc'),keras.callbacks.CSVLogger('trainres9.csv')]
    
-   cnn.fit(xtrain9,ytrain9,epochs=100,batch_size=64,callbacks=callbacks, validation_split=.05,verbose=0) # validation_data=(xtest9,ytest9)
+   cnn.fit(X9,Y9,epochs=100,batch_size=64,callbacks=callbacks, validation_split=.05,verbose=0)
    
    cnnbest=keras.models.load_model('bestMod9.hdf')
    tmpacc=np.sum(cnnbest.predict(X4).argmax(axis=1)==Y4.argmax(axis=1))/len(Y4)
