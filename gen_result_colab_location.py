@@ -6,11 +6,11 @@ from itertools import count
 import numpy as np
 import pylab as pl
 import pandas as pd
-import keras,os
+import keras,os,sys
 
 randSeed=10
 testSize=.01
-nParams=60
+nParams=80
 
 
 loc=CreateLocationData()
@@ -40,9 +40,13 @@ counter=count(1)
 for param in params:
 
    print("(4->9) Running paramset #"+str(next(counter)))
-
+   sys.stdout.flush()
   
-   cnn=CreateCNN((100,150,150,150,200),(10,10,10,10,10),poolSizes=(3,3,3,3,3),lr=.0001,dropProb=.7,reg=.0,nOutputs=3)
+   #cnn=CreateCNN((100,150,150,150,200),(10,10,10,10,10),poolSizes=(3,3,3,3,3),lr=.0001,dropProb=.7,reg=.0,nOutputs=3)
+   nfiltbase,filtlen,lr,dropProb=param
+   nfilts=[int(nfiltbase*tmp) for tmp in [1,1.5,1.5,1.5,2]]   
+   cnn=CreateCNN(nfilts,[int(filtlen)]*len(nfilts),poolSizes=(3,3,3,3,3),lr=lr,dropProb=dropProb,reg=.0,nOutputs=3)  
+   
    callbacks=[keras.callbacks.ModelCheckpoint('bestMod4.hdf',save_best_only=True,monitor='val_acc'),keras.callbacks.CSVLogger('trainres4.csv')]
   
    cnn.fit(xtrain,ytrain,epochs=100,batch_size=64,callbacks=callbacks, validation_split=.05,verbose=0) # validation_data=(xtest9,ytest9)
@@ -78,9 +82,14 @@ counter=count(1)
 for param in params:
 
    print("(9->4) Running paramset #"+str(next(counter)))
-  
+   sys.stdout.flush()
     
-   cnn=CreateCNN((100,150,150,150,200),(10,10,10,10,10),poolSizes=(3,3,3,3,3),lr=.0001,dropProb=.7,reg=.0,nOutputs=3)
+   #cnn=CreateCNN((100,150,150,150,200),(10,10,10,10,10),poolSizes=(3,3,3,3,3),lr=.0001,dropProb=.7,reg=.0,nOutputs=3)
+   nfiltbase,filtlen,lr,dropProb=param
+   nfilts=[int(nfiltbase*tmp) for tmp in [1,1.5,1.5,1.5,2]]   
+   cnn=CreateCNN(nfilts,[int(filtlen)]*len(nfilts),poolSizes=(3,3,3,3,3),lr=lr,dropProb=dropProb,reg=.0,nOutputs=3)  
+   
+   
    callbacks=[keras.callbacks.ModelCheckpoint('bestMod9.hdf',save_best_only=True,monitor='val_acc'),keras.callbacks.CSVLogger('trainres9.csv')]
    
    cnn.fit(xtrain9,ytrain9,epochs=100,batch_size=64,callbacks=callbacks, validation_split=.05,verbose=0) # validation_data=(xtest9,ytest9)
