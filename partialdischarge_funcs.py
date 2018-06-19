@@ -143,51 +143,52 @@ def CreateLocationData(locationPath='LocationData',normalize=False):
 # Deprecated versions
 #########################
 
-def CreateCNN_deprecated(classifier,nfilt1=50,lenfilt1=30,nfilt2=50,lenfilt2=20,nhidden=50,dropkeep=.35,lr=0.008):
-    ''' 
-    Return conv. NN
-    '''
 
-    cnn=sq()
-    cnn.add(Convolution1D(nfilt1,lenfilt1,input_shape=(2500,1),strides=1,activation='relu'))
-    cnn.add(MaxPooling1D(100,50))
-    cnn.add(Dropout(dropkeep))
-    cnn.add(Convolution1D(nfilt2,lenfilt2,strides=1,activation="relu"))
-    cnn.add(MaxPooling1D(10,5))
-    cnn.add(Dropout(dropkeep))
+#def CreateCNN_deprecated(classifier,nfilt1=50,lenfilt1=30,nfilt2=50,lenfilt2=20,nhidden=50,dropkeep=.35,lr=0.008):
+#    ''' 
+#    Return conv. NN
+#    '''
 
-    cnn.add(Flatten())
-    cnn.add(Dense(nhidden,activation='relu'))
-    cnn.add(Dropout(dropkeep))
-    cnn.add(Dense(2,activation="softmax"))
-    adam=keras.optimizers.Adam(lr=lr)
-    cnn.compile(loss='categorical_crossentropy',optimizer=adam)
+#    cnn=sq()
+#    cnn.add(Convolution1D(nfilt1,lenfilt1,input_shape=(2500,1),strides=1,activation='relu'))
+#    cnn.add(MaxPooling1D(100,50))
+#    cnn.add(Dropout(dropkeep))
+#    cnn.add(Convolution1D(nfilt2,lenfilt2,strides=1,activation="relu"))
+#    cnn.add(MaxPooling1D(10,5))
+#    cnn.add(Dropout(dropkeep))
+
+#    cnn.add(Flatten())
+#    cnn.add(Dense(nhidden,activation='relu'))
+#    cnn.add(Dropout(dropkeep))
+#    cnn.add(Dense(2,activation="softmax"))
+#    adam=keras.optimizers.Adam(lr=lr)
+#    cnn.compile(loss='categorical_crossentropy',optimizer=adam)
     
-    return cnn
+#    return cnn
 
-def CreateLocationData_deprecated(locationPath='LocationData'):
+#def CreateLocationData_deprecated(locationPath='LocationData'):
 
-    # Creating the data
-    surf4=Folder2Matrix(PathJoin(locationPath,'Surface/PD_Location4'))
-    sharp4=Folder2Matrix(PathJoin(locationPath,'Sharp/PD_Location4'))
-    void4=Folder2Matrix(PathJoin(locationPath,'Void/PD_Location4'))
-    nsurf4=len(surf4)
-    nsharp4=len(sharp4)
-    nvoid4=len(void4)
-    X4=np.concatenate((surf4,sharp4,void4))
-    Ysurf4=np.concatenate((np.tile([1,0],(nsurf4,1)),np.tile([0,1],(nsharp4+nvoid4,1))))
-    Ysharp4=np.concatenate((np.tile([0,1],(nsurf4,1)),np.tile([1,0],(nsharp4,1)),np.tile([0,1],(nvoid4,1))))
-    Yvoid4=np.concatenate((np.tile([0,1],(nsurf4+nsharp4,1)),np.tile([1,0],(nvoid4,1))))
+#    # Creating the data
+#    surf4=Folder2Matrix(PathJoin(locationPath,'Surface/PD_Location4'))
+#    sharp4=Folder2Matrix(PathJoin(locationPath,'Sharp/PD_Location4'))
+#    void4=Folder2Matrix(PathJoin(locationPath,'Void/PD_Location4'))
+#    nsurf4=len(surf4)
+#    nsharp4=len(sharp4)
+#    nvoid4=len(void4)
+#    X4=np.concatenate((surf4,sharp4,void4))
+#    Ysurf4=np.concatenate((np.tile([1,0],(nsurf4,1)),np.tile([0,1],(nsharp4+nvoid4,1))))
+#    Ysharp4=np.concatenate((np.tile([0,1],(nsurf4,1)),np.tile([1,0],(nsharp4,1)),np.tile([0,1],(nvoid4,1))))
+#    Yvoid4=np.concatenate((np.tile([0,1],(nsurf4+nsharp4,1)),np.tile([1,0],(nvoid4,1))))
     
-    surf9=Folder2Matrix(PathJoin(locationPath,'Surface/PD_Location9'))
-    sharp9=Folder2Matrix(PathJoin(locationPath,'Sharp/PD_Location9'))
-    void9=Folder2Matrix(PathJoin(locationPath,'Void/PD_Location9'))
-    nsurf9=len(surf9)
-    nsharp9=len(sharp9)
-    nvoid9=len(void9)
-    X9=np.concatenate((surf9,sharp9,void9))
-    Ysurf9=np.concatenate((np.tile([1,0],(nsurf9,1)),np.tile([0,1],(nsharp9+nvoid9,1))))
-    Ysharp9=np.concatenate((np.tile([0,1],(nsurf9,1)),np.tile([1,0],(nsharp9,1)),np.tile([0,1],(nvoid9,1))))
-    Yvoid9=np.concatenate((np.tile([0,1],(nsurf9+nsharp9,1)),np.tile([1,0],(nvoid9,1))))
+#    surf9=Folder2Matrix(PathJoin(locationPath,'Surface/PD_Location9'))
+#    sharp9=Folder2Matrix(PathJoin(locationPath,'Sharp/PD_Location9'))
+#    void9=Folder2Matrix(PathJoin(locationPath,'Void/PD_Location9'))
+#    nsurf9=len(surf9)
+#    nsharp9=len(sharp9)
+#    nvoid9=len(void9)
+#    X9=np.concatenate((surf9,sharp9,void9))
+#    Ysurf9=np.concatenate((np.tile([1,0],(nsurf9,1)),np.tile([0,1],(nsharp9+nvoid9,1))))
+#    Ysharp9=np.concatenate((np.tile([0,1],(nsurf9,1)),np.tile([1,0],(nsharp9,1)),np.tile([0,1],(nvoid9,1))))
+#    Yvoid9=np.concatenate((np.tile([0,1],(nsurf9+nsharp9,1)),np.tile([1,0],(nvoid9,1))))
 
-    return dict(X4=X4,X9=X9,Ysurf4=Ysurf4,Ysharp4=Ysharp4,Yvoid4=Yvoid4,Ysurf9=Ysurf9,Ysharp9=Ysharp9,Yvoid9=Yvoid9)
+#    return dict(X4=X4,X9=X9,Ysurf4=Ysurf4,Ysharp4=Ysharp4,Yvoid4=Yvoid4,Ysurf9=Ysurf9,Ysharp9=Ysharp9,Yvoid9=Yvoid9)
